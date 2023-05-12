@@ -1,6 +1,5 @@
 const { AuthenticationError } = require('apollo-server-express');
 const { User, Book } = require('../models');
-const { sign } = require('jsonwebtoken');
 const { signToken } = require('../utils/auth');
 
 const resolvers = {
@@ -20,6 +19,21 @@ const resolvers = {
             if (!user) {
                 throw new AuthenticationError("No user with this email found...")
             }
+            const token = signToken(user);
+            return { token, user };
         },
+        saveBook: async (parent, { bookData, token }, context) => {
+                if (context.user) {
+                    const user = await User.findOneAndUpdate(
+                            {_id: context.user._id },
+                            {$addToSet: {
+                                savedBooks: input
+                                }
+                            },
+                    )
+                }
+            }
     },
-}
+};
+
+module.exports = resolvers;
