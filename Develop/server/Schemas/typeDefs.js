@@ -45,8 +45,12 @@ const typeDefs = gql`
         login(
             email: String!
             password: String!
-        ): Auth
-        saveBook(book: SavedBookInput!): User
-        removeBook(bookId: ID!): User
+            ): Auth
+        saveBook(
+            book: SavedBookInput!
+            ): User
+        removeBook(
+            bookId: ID!
+            ): User
     }`;
     module.exports = typeDefs
