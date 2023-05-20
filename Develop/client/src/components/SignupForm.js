@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/client'
 import { Form, Button, Alert } from 'react-bootstrap';
 import { ADD_USER } from '../utils/mutations';
@@ -17,7 +16,17 @@ const SignupForm = () => {
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const [addUser] = useMutation(ADD_USER);
+  const [addUser, { error }] = useMutation(ADD_USER);
+
+  useEffect(() => {
+    if (error) {
+      console.log(error)
+      setShowAlert(true);
+    } else {
+      setShowAlert(false);
+    }
+  }, [error]);
+  
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -27,81 +36,25 @@ const SignupForm = () => {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    // // check if form has everything (as per react-bootstrap docs)
-    // const form = event.currentTarget;
-    // if (form.checkValidity() === false) {
-    //     event.preventDefault();
-    //     event.stopPropagation();
-    // }
-
+    const form = event.currentTarget;
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    }
     try {
-      const response = await addUser({
+      const { data } = await addUser({
         variables: { ...userFormData },
       });
-
-      if (!response.ok) {
-        throw new Error("Could not add new user");
-      }
-
-      const { token } = await response.json();
-      Auth.login(token);
+      Auth.login(data.addUser.token);
     } catch (err) {
-      setShowAlert(true);
+      console.error(err);
     }
 
-    setUserFormData({
+      setUserFormData({
       username: "",
       email: "",
       password: "",
     });
   };
-
-
-// const SignupForm = () => {
-//   // set initial form state
-//   const [userFormData, setUserFormData] = useState({ username: '', email: '', password: '' });
-//   // set state for form validation
-//   const [validated] = useState(false);
-//   // set state for alert
-//   const [showAlert, setShowAlert] = useState(false);
-
-//   const handleInputChange = (event) => {
-//     const { name, value } = event.target;
-//     setUserFormData({ ...userFormData, [name]: value });
-//   };
-
-//   const handleFormSubmit = async (event) => {
-//     event.preventDefault();
-
-//     // check if form has everything (as per react-bootstrap docs)
-//     const form = event.currentTarget;
-//     if (form.checkValidity() === false) {
-//       event.preventDefault();
-//       event.stopPropagation();
-//     }
-
-//     try {
-//       // const response = await createUser(userFormData);
-//       //ADD_USER mutation funcionality
-
-//       if (!response.ok) {
-//         throw new Error('something went wrong!');
-//       }
-
-//       const { token, user } = await response.json();
-//       console.log(user);
-//       Auth.login(token);
-//     } catch (err) {
-//       console.error(err);
-//       setShowAlert(true);
-//     }
-
-//     setUserFormData({
-//       username: '',
-//       email: '',
-//       password: '',
-//     });
-//   };
 
   return (
     <>

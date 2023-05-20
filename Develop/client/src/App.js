@@ -1,6 +1,6 @@
 import React from 'react';
-import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import SearchBooks from './pages/SearchBooks';
 import SavedBooks from './pages/SavedBooks';
@@ -23,13 +23,19 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+const client = new ApolloClient({
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache(),
+});
+
 function App() {
   return (
   <ApolloProvider client={client}>
     <Router>
       <>
         <Navbar />
-        <Switch>
+        <Switch> 
+          {/* using Switch instead of Routes */}
           <Route 
             path='/' 
             component={SearchBooks}
